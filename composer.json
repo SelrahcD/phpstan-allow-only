@@ -1,0 +1,8 @@
+{
+    "name": "selrahcd/phpstan-allow-only",
+    "require-dev": {
+        "phpstan/phpstan": "^0.12.99",
+        "phpunit/phpunit": "^9.5"
+    },
+    "require": {}
+}
