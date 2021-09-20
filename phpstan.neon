@@ -1,0 +1,12 @@
+rules:
+    - App\Rules\AllowOnlyFromRule
+
+parameters:
+    bootstrapFiles:
+        - vendor/autoload.php
+    level: 6
+    paths:
+        - src
+        - tests
+    excludePaths:
+        - tests/Rules/data/*
