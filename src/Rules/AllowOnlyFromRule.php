@@ -40,15 +40,12 @@ final class AllowOnlyFromRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
-        /**
-         * @var Node\Expr\MethodCall $node
-         */
         $caller = $scope->getType($node->var);
-
-        /**
-         * @var Node\Identifier $methodIdentifier
-         */
         $methodIdentifier = $node->name;
+        if (!$methodIdentifier instanceof Node\Identifier) {
+            return [];
+        }
+
         $methodName = $methodIdentifier->name;
 
         if ($caller instanceof UnionType) {
@@ -84,9 +81,6 @@ final class AllowOnlyFromRule implements Rule
         return array_reduce($phpDocNodes, function (array $allowedCallers, PhpDocNode $phpDocNode) {
             return array_reduce($phpDocNode->children, function (array $allowedCallers, PhpDocChildNode $docNode) {
                 if ($docNode instanceof PhpDocTagNode && $docNode->name === '@allow-only-from') {
-                    /**
-                     * @var GenericTagValueNode $tagValue
-                     */
                     $tagValue = $docNode->value;
                     $allowedCallers[] = $tagValue->value;
                 }
