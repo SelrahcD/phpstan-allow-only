@@ -44,11 +44,12 @@ final class AllowOnlyFromRule implements Rule
         }
 
         $methodName = $methodIdentifier->name;
-        if (!$calledOnObject->hasMethod($methodName)->yes()) {
+        $methodReflection = $scope->getMethodReflection($calledOnObject, $methodName);
+        if ($methodReflection === null) {
             return [];
         }
 
-        return $this->ensureMethodCanBeCalledFromHere($calledOnObject->getMethod($methodName, $scope), $scope);
+        return $this->ensureMethodCanBeCalledFromHere($methodReflection, $scope);
     }
 
     /**
