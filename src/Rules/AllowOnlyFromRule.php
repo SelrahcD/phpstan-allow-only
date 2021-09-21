@@ -108,9 +108,6 @@ final class AllowOnlyFromRule implements Rule
     private function ensureMethodCanBeCalledFromHere(MethodReflection $methodReflection, Scope $scope): array
     {
         $allowedCallers = $this->listAllowedCallers($methodReflection);
-        if ($scope->isInClass() && $methodReflection->getDeclaringClass()->getName() === $scope->getClassReflection()->getName()) {
-            return [];
-        }
 
         // Because it doesn't have allowed callers we know the tag is not set.
         // It means we don't have to apply the rule for that method call.
@@ -126,9 +123,13 @@ final class AllowOnlyFromRule implements Rule
             ];
         }
 
+        if ($methodReflection->getDeclaringClass()->getName() === $scope->getClassReflection()->getName()) {
+            return [];
+        }
+
         // If we are in a class we need to check if the class
         // is one of the allowed callers
-        if ($scope->isInClass() && !\in_array($scope->getClassReflection()->getName(), $allowedCallers)) {
+        if (!\in_array($scope->getClassReflection()->getName(), $allowedCallers)) {
             return [
                 $this->errorMessage($methodReflection, $allowedCallers),
             ];
