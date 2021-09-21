@@ -7,9 +7,6 @@ namespace App\Rules;
 use PhpParser\Node;
 use PHPStan\Analyser\Scope;
 use PHPStan\PhpDocParser\Ast\PhpDoc\GenericTagValueNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocChildNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocNode;
-use PHPStan\PhpDocParser\Ast\PhpDoc\PhpDocTagNode;
 use PHPStan\Reflection\MethodReflection;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
@@ -75,17 +72,19 @@ final class AllowOnlyFromRule implements Rule
         );
 
         $phpDocNodes = $resolvedPhpDoc->getPhpDocNodes();
-
-        return array_reduce($phpDocNodes, function (array $allowedCallers, PhpDocNode $phpDocNode) {
-            return array_reduce($phpDocNode->children, function (array $allowedCallers, PhpDocChildNode $docNode) {
-                if ($docNode instanceof PhpDocTagNode && $docNode->name === '@allow-only-from') {
-                    $tagValue = $docNode->value;
-                    $allowedCallers[] = $tagValue->value;
+        $allowedCallers = [];
+        foreach ($phpDocNodes as $phpDocNode) {
+            $tags = $phpDocNode->getTagsByName('@allow-only-from');
+            foreach ($tags as $tag) {
+                if (!$tag->value instanceof GenericTagValueNode) {
+                    continue;
                 }
 
-                return $allowedCallers;
-            }, $allowedCallers);
-        }, []);
+                $allowedCallers[] = $tag->value->value;
+            }
+        }
+
+        return $allowedCallers;
     }
 
     /**
